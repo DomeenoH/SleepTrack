@@ -125,7 +125,7 @@
         <h1>当前状态：<span id="currentStatus" class="status unknown">加载中...</span></h1>
         <h2>持续时间：<span id="statusDuration">加载中...</span></h2>
         <div class="history">
-            <h2>最近10次状态变化：</h2>
+            <h2>最近 10 次状态变化：</h2>
             <table>
                 <thead>
                     <tr>
@@ -146,29 +146,7 @@
     </div>
 
     <script>
-        let initialFetch = true;
-        let initialData = null;
-
-        function updateDurations(data, currentTime) {
-            const durationElement = document.getElementById('statusDuration');
-            const awakeTimeElement = document.getElementById('awakeTime');
-            const sleepTimeElement = document.getElementById('sleepTime');
-
-            // 更新状态持续时间
-            const statusDuration = currentTime - data.status_time;
-            const statusHours = Math.floor(statusDuration / 3600);
-            const statusMinutes = Math.floor((statusDuration % 3600) / 60);
-            const statusSeconds = statusDuration % 60;
-
-            durationElement.innerText = `${statusHours}小时${statusMinutes}分钟${statusSeconds}秒`;
-
-            // 更新清醒时间和睡眠时间
-            const awakeTime = data.awake_time + (data.status === '醒着' ? (currentTime - data.status_time) : 0);
-            const sleepTime = data.sleep_time + (data.status === '睡着' ? (currentTime - data.status_time) : 0);
-
-            awakeTimeElement.innerText = awakeTime;
-            sleepTimeElement.innerText = sleepTime;
-        }
+        let lastStatus = null;
 
         function fetchStatus() {
             fetch('status.php')
@@ -179,109 +157,104 @@
                     const sleepPercentageElement = document.getElementById('sleepPercentage');
                     const mentalStateElement = document.getElementById('mentalState');
                     const summaryElement = document.getElementById('summary');
+                    const durationElement = document.getElementById('statusDuration');
+                    const awakeTimeElement = document.getElementById('awakeTime');
+                    const sleepTimeElement = document.getElementById('sleepTime');
 
-                    statusElement.innerText = data.status;
+                    if (data.status !== lastStatus) {
+                        lastStatus = data.status;
+                        statusElement.innerText = data.status;
 
-                    // 移除所有状态类
-                    statusElement.classList.remove('awake', 'asleep', 'unknown');
-
-                    // 根据状态添加对应的类
-                    if (data.status === '醒着') {
-                        statusElement.classList.add('awake');
-                    } else if (data.status === '睡着') {
-                        statusElement.classList.add('asleep');
-                    } else {
-                        statusElement.classList.add('unknown');
-                    }
-
-                    // 显示最近10次状态变化，从最新到最旧
-                    historyTableBody.innerHTML = '';
-                    data.history.reverse().slice(0, 10).forEach((entry, index, array) => {
-                        const row = document.createElement('tr');
-                        const statusCell = document.createElement('td');
-                        const durationCell = document.createElement('td');
-
-                        statusCell.innerText = entry.status;
-
-                        let durationText;
-                        if (index === 0) {
-                            const duration = Math.floor(Date.now() / 1000) - entry.time;
-                            const hours = Math.floor(duration / 3600);
-                            const minutes = Math.floor((duration % 3600) / 60);
-                            const seconds = duration % 60;
-                            durationText = `${hours}小时${minutes}分钟${seconds}秒`;
+                        statusElement.classList.remove('awake', 'asleep', 'unknown');
+                        if (data.status === '醒着') {
+                            statusElement.classList.add('awake');
+                        } else if (data.status === '睡着') {
+                            statusElement.classList.add('asleep');
                         } else {
-                            const duration = array[index - 1].time - entry.time;
-                            const hours = Math.floor(duration / 3600);
-                            const minutes = Math.floor((duration % 3600) / 60);
-                            const seconds = duration % 60;
-                            durationText = `${hours}小时${minutes}分钟${seconds}秒`;
+                            statusElement.classList.add('unknown');
                         }
 
-                        durationCell.innerText = durationText;
+                        historyTableBody.innerHTML = '';
+                        data.history.reverse().forEach((entry, index, array) => {
+                            const row = document.createElement('tr');
+                            const statusCell = document.createElement('td');
+                            const durationCell = document.createElement('td');
 
-                        row.appendChild(statusCell);
-                        row.appendChild(durationCell);
-                        historyTableBody.appendChild(row);
-                    });
+                            statusCell.innerText = entry.status;
 
-                    // 计算并更新睡眠百分比和精神状态
-                    if (data.sleep_time && data.total_time) {
-                        const sleepPercentage = (data.sleep_time / data.total_time * 100).toFixed(2); // 计算睡眠百分比
-                        sleepPercentageElement.innerText = `${sleepPercentage}%`;
+                            let durationText;
+                            if (index === 0) {
+                                const duration = Math.floor(Date.now() / 1000) - entry.time;
+                                const hours = Math.floor(duration / 3600);
+                                const minutes = Math.floor((duration % 3600) / 60);
+                                const seconds = duration % 60;
+                                durationText = `${hours}小时${minutes}分钟${seconds}秒`;
+                            } else {
+                                const duration = array[index - 1].time - entry.time;
+                                const hours = Math.floor(duration / 3600);
+                                const minutes = Math.floor((duration % 3600) / 60);
+                                const seconds = duration % 60;
+                                durationText = `${hours}小时${minutes}分钟${seconds}秒`;
+                            }
 
-                        // 根据睡眠百分比修改背景颜色
-                        summaryElement.classList.remove('good', 'ok', 'bad');
-                        if (sleepPercentage >= 70) {
-                            summaryElement.classList.add('good');
-                        } else if (sleepPercentage >= 50) {
-                            summaryElement.classList.add('ok');
-                        } else {
-                            summaryElement.classList.add('bad');
+                            durationCell.innerText = durationText;
+
+                            row.appendChild(statusCell);
+                            row.appendChild(durationCell);
+                            historyTableBody.appendChild(row);
+                        });
+
+                        if (data.sleep_time && data.total_time) {
+                            const sleepPercentage = (data.sleep_time / data.total_time * 100).toFixed(2);
+                            sleepPercentageElement.innerText = `${sleepPercentage}%`;
+
+                            summaryElement.classList.remove('good', 'ok', 'bad');
+                            if (sleepPercentage >= 70) {
+                                summaryElement.classList.add('good');
+                            } else if (sleepPercentage >= 50) {
+                                summaryElement.classList.add('ok');
+                            } else {
+                                summaryElement.classList.add('bad');
+                            }
+
+                            mentalStateElement.innerText = data.mental_state;
+                            mentalStateElement.classList.remove('state-95', 'state-70', 'state-60', 'state-45', 'state-30', 'state-10', 'state-0');
+
+                            if (sleepPercentage >= 95) {
+                                mentalStateElement.classList.add('state-95');
+                            } else if (sleepPercentage >= 70) {
+                                mentalStateElement.classList.add('state-70');
+                            } else if (sleepPercentage >= 60) {
+                                mentalStateElement.classList.add('state-60');
+                            } else if (sleepPercentage >= 45) {
+                                mentalStateElement.classList.add('state-45');
+                            } else if (sleepPercentage >= 30) {
+                                mentalStateElement.classList.add('state-30');
+                            } else if (sleepPercentage >= 10) {
+                                mentalStateElement.classList.add('state-10');
+                            } else {
+                                mentalStateElement.classList.add('state-0');
+                            }
                         }
-
-                        // 设置精神状态的样式和内容
-                        mentalStateElement.innerText = data.mental_state;
-                        mentalStateElement.classList.remove('state-95', 'state-70', 'state-60', 'state-45', 'state-30', 'state-10', 'state-0');
-
-                        if (sleepPercentage >= 95) {
-                            mentalStateElement.classList.add('state-95');
-                        } else if (sleepPercentage >= 70) {
-                            mentalStateElement.classList.add('state-70');
-                        } else if (sleepPercentage >= 60) {
-                            mentalStateElement.classList.add('state-60');
-                        } else if (sleepPercentage >= 45) {
-                            mentalStateElement.classList.add('state-45');
-                        } else if (sleepPercentage >= 30) {
-                            mentalStateElement.classList.add('state-30');
-                        } else if (sleepPercentage >= 10) {
-                            mentalStateElement.classList.add('state-10');
-                        } else {
-                            mentalStateElement.classList.add('state-0');
-                        }
-                    } else {
-                        sleepPercentageElement.innerText = '数据不足';
-                        summaryElement.classList.add('unknown');
-                        mentalStateElement.innerText = '未知';
-                        mentalStateElement.classList.add('state-0');
                     }
 
-                    // 初始化时保存数据
-                    if (initialFetch) {
-                        initialData = data;
-                        initialFetch = false;
-                    }
+                    // 更新持续时间、醒着时间和睡觉时间
+                    const statusDuration = Math.floor(Date.now() / 1000) - data.status_time;
+                    const statusHours = Math.floor(statusDuration / 3600);
+                    const statusMinutes = Math.floor((statusDuration % 3600) / 60);
+                    const statusSeconds = statusDuration % 60;
 
-                    // 动态更新清醒时间和睡眠时间
-                    setInterval(() => {
-                        const currentTime = Math.floor(Date.now() / 1000);
-                        updateDurations(initialData, currentTime);
-                    }, 1000);
-                });
+                    durationElement.innerText = `${statusHours}小时${statusMinutes}分钟${statusSeconds}秒`;
+                    awakeTimeElement.innerText = data.awake_time;
+                    sleepTimeElement.innerText = data.sleep_time;
+                })
+                .catch(error => console.error('Error fetching status:', error));
         }
 
+        // 每秒钟请求一次最新的状态数据
+        setInterval(fetchStatus, 1000);
+        // 页面加载时立即请求一次数据
         fetchStatus();
-        setInterval(fetchStatus, 10000); // 每10秒重新获取一次数据
     </script>
 </body>
 </html>
