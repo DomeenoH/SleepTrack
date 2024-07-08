@@ -27,7 +27,7 @@
       - `key`: 验证密钥
     - 示例：
       ```bash
-      curl -X POST -d "status=睡着&key=DominoHAOQIANGA" http://yourdomain.com/status.php
+      curl -X POST -d "status=睡着&key=YOURSECRETKEY" http://yourdomain.com/status.php
       ```
 
 2. **GET请求**：
@@ -37,7 +37,7 @@
       - `key`: 验证密钥
     - 示例：
       ```bash
-      curl -G -d "status=醒着&key=DominoHAOQIANGA" http://yourdomain.com/status.php
+      curl -G -d "status=醒着&key=YOURSECRETKEY" http://yourdomain.com/status.php
       ```
 
 #### 项目实现
