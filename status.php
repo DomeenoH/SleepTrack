@@ -1,10 +1,10 @@
 <?php
 session_start();
 
-define('AUTH_KEY'， 'YOURSECRETKEY'); // 定义鉴权密钥
-define('STATUS_FILE'， 'status_log.txt'); // 定义状态日志文件
+define('AUTH_KEY', 'YOURSECRETKEY'); // 定义鉴权密钥
+define('STATUS_FILE', 'status_log.txt'); // 定义状态日志文件
 
-header('Content-Type: application/json; charset=utf-8'); // 设置HTTP响应头
+header('Content-Type: application/json; charset=utf-8'); // 设置 HTTP 响应头
 
 // 函数用于验证请求中的密钥
 function isValidKey($key) {
@@ -35,12 +35,12 @@ function writeStatusLog($status) {
     // 添加新条目到数组的末尾
     $entries[] = rtrim($log_entry);
 
-    // 保留最后的10条记录
+    // 保留最后的 10 条记录
     if (count($entries) > 10) {
         $entries = array_slice($entries, -10);
     }
 
-    // 将最新的10条记录写回文件
+    // 将最新的 10 条记录写回文件
     file_put_contents(STATUS_FILE, implode(PHP_EOL, $entries) . PHP_EOL);
 }
 
@@ -165,11 +165,10 @@ echo json_encode([
     'status' => $status,
     'status_time' => $status_time,
     'history' => $history,
-    'sleep_quality' => $sleepQuality['sleep_quality'],
-    'mental_state' => $sleepQuality['mental_state'],
     'sleep_time' => $sleepQuality['sleep_time'],
     'awake_time' => $sleepQuality['awake_time'],
     'total_time' => $sleepQuality['total_time'],
-    'recent_activity' => '我最近清醒了 ' . $sleepQuality['awake_time'] . ' 秒，睡了 ' . $sleepQuality['sleep_time'] . ' 秒'
+    'sleep_quality' => $sleepQuality['sleep_quality'],
+    'mental_state' => $sleepQuality['mental_state']
 ], JSON_UNESCAPED_UNICODE);
 ?>
