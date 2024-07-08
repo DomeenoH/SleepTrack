@@ -1,8 +1,8 @@
 <?php
 session_start();
 
-define('AUTH_KEY', 'DominoHAOQIANGA'); // 定义鉴权密钥
-define('STATUS_FILE', 'status_log.txt'); // 定义状态日志文件
+define('AUTH_KEY'， 'YOURSECRETKEY'); // 定义鉴权密钥
+define('STATUS_FILE'， 'status_log.txt'); // 定义状态日志文件
 
 header('Content-Type: application/json; charset=utf-8'); // 设置HTTP响应头
 
