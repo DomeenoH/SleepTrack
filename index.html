@@ -113,43 +113,36 @@
 
     .state-95 {
       background-color: #e91e63;
-      /* 深粉色 */
       color: #ffffff;
     }
 
     .state-70 {
       background-color: #ff9800;
-      /* 橙色 */
       color: #ffffff;
     }
 
     .state-60 {
       background-color: #ffc107;
-      /* 琥珀色 */
       color: #000000;
     }
 
     .state-45 {
       background-color: #8bc34a;
-      /* 浅绿色 */
       color: #000000;
     }
 
     .state-30 {
       background-color: #cddc39;
-      /* 青柠色 */
       color: #000000;
     }
 
     .state-10 {
       background-color: #ffeb3b;
-      /* 黄色 */
       color: #000000;
     }
 
     .state-0 {
       background-color: #f44336;
-      /* 红色 */
       color: #ffffff;
     }
   </style>
@@ -237,19 +230,6 @@
             historyTableBody.appendChild(row);
           });
 
-          // 更新最近的一个状态的持续时间
-          const firstRow = historyTableBody.rows[0];
-          if (firstRow) {
-            const durationCell = firstRow.cells[1];
-            const recentStatusTime = data.history[data.history.length - 1].time;
-            const duration = Math.floor(Date.now() / 1000) - recentStatusTime;
-            const hours = Math.floor(duration / 3600);
-            const minutes = Math.floor((duration % 3600) / 60);
-            const seconds = duration % 60;
-            durationCell.innerText = `${hours}小时${minutes}分钟${seconds}秒`;
-          }
-
-          // 更新持续时间、醒着时间和睡觉时间
           const statusDuration = Math.floor(Date.now() / 1000) - data.status_time;
           const statusHours = Math.floor(statusDuration / 3600);
           const statusMinutes = Math.floor((statusDuration % 3600) / 60);
@@ -259,7 +239,6 @@
           awakeTimeElement.innerText = data.awake_time;
           sleepTimeElement.innerText = data.sleep_time;
 
-          // 更新睡眠情况分析中的所有数据
           const sleepPercentage = data.sleep_quality.toFixed(2);
           sleepPercentageElement.innerText = `${sleepPercentage}%`;
 
@@ -290,13 +269,13 @@
           } else {
             mentalStateElement.classList.add('state-0');
           }
+
+          lastStatus = data.history.length > 0 ? data.history[data.history.length - 1].time : null;
         })
         .catch(error => console.error('Error fetching status:', error));
     }
 
-    // 页面加载时立即请求一次数据
     fetchStatus();
-    // 每秒钟请求一次最新的状态数据
     setInterval(fetchStatus, 1000);
 
 
