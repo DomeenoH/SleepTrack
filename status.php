@@ -156,9 +156,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['status']) && isset($_GE
     exit;
 }
 
-$status = isset($_SESSION['status']) ? $_SESSION['status'] : '未知';
-$status_time = isset($_SESSION['status_time']) ? $_SESSION['status_time'] : time();
+$status = '未知';
+$status_time = time();
 $history = readStatusLog();
+if (!empty($history)) {
+    $lastEntry = end($history);
+    $status = $lastEntry['status'];
+    $status_time = $lastEntry['time'];
+}
 $sleepQuality = calculateSleepQuality($history);
 
 echo json_encode([
@@ -171,4 +176,3 @@ echo json_encode([
     'sleep_quality' => $sleepQuality['sleep_quality'],
     'mental_state' => $sleepQuality['mental_state']
 ], JSON_UNESCAPED_UNICODE);
-?>
