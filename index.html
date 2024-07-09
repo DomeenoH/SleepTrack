@@ -1,260 +1,307 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
-    <meta charset="UTF-8">
-    <title>状态更新</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            height: 100vh;
-        }
-        .container {
-            background-color: #ffffff;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            width: 80%;
-            max-width: 800px;
-        }
-        h1 {
-            font-size: 24px;
-            margin-bottom: 20px;
-        }
-        .status {
-            font-size: 20px;
-            padding: 10px;
-            border-radius: 5px;
-            display: inline-block;
-            min-width: 100px;
-        }
-        .awake {
-            background-color: #4caf50;
-            color: #ffffff;
-        }
-        .asleep {
-            background-color: #f44336;
-            color: #ffffff;
-        }
-        .unknown {
-            background-color: #9e9e9e;
-            color: #ffffff;
-        }
-        .history {
-            margin-top: 20px;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-        }
-        table, th, td {
-            border: 1px solid #ddd;
-        }
-        th, td {
-            padding: 8px;
-            text-align: center;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-        .summary {
-            margin-top: 20px;
-            padding: 10px;
-            border-radius: 5px;
-            text-align: left;
-        }
-        .summary.good {
-            background-color: #dff0d8;
-            color: #3c763d;
-        }
-        .summary.ok {
-            background-color: #fcf8e3;
-            color: #8a6d3b;
-        }
-        .summary.bad {
-            background-color: #f2dede;
-            color: #a94442;
-        }
-        .mental-state {
-            font-size: 24px;
-            font-weight: bold;
-            padding: 10px;
-            border-radius: 5px;
-            display: inline-block;
-        }
-        .state-95 {
-            background-color: #e91e63; /* 深粉色 */
-            color: #ffffff;
-        }
-        .state-70 {
-            background-color: #ff9800; /* 橙色 */
-            color: #ffffff;
-        }
-        .state-60 {
-            background-color: #ffc107; /* 琥珀色 */
-            color: #000000;
-        }
-        .state-45 {
-            background-color: #8bc34a; /* 浅绿色 */
-            color: #000000;
-        }
-        .state-30 {
-            background-color: #cddc39; /* 青柠色 */
-            color: #000000;
-        }
-        .state-10 {
-            background-color: #ffeb3b; /* 黄色 */
-            color: #000000;
-        }
-        .state-0 {
-            background-color: #f44336; /* 红色 */
-            color: #ffffff;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>状态更新</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f0f0;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    .container {
+      background-color: #ffffff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      width: 80%;
+      max-width: 800px;
+    }
+
+    h1 {
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+
+    .status {
+      font-size: 20px;
+      padding: 10px;
+      border-radius: 5px;
+      display: inline-block;
+      min-width: 100px;
+    }
+
+    .awake {
+      background-color: #4caf50;
+      color: #ffffff;
+    }
+
+    .asleep {
+      background-color: #f44336;
+      color: #ffffff;
+    }
+
+    .unknown {
+      background-color: #9e9e9e;
+      color: #ffffff;
+    }
+
+    .history {
+      margin-top: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+
+    table,
+    th,
+    td {
+      border: 1px solid #ddd;
+    }
+
+    th,
+    td {
+      padding: 8px;
+      text-align: center;
+    }
+
+    th {
+      background-color: #f2f2f2;
+    }
+
+    .summary {
+      margin-top: 20px;
+      padding: 10px;
+      border-radius: 5px;
+      text-align: left;
+    }
+
+    .summary.good {
+      background-color: #dff0d8;
+      color: #3c763d;
+    }
+
+    .summary.ok {
+      background-color: #fcf8e3;
+      color: #8a6d3b;
+    }
+
+    .summary.bad {
+      background-color: #f2dede;
+      color: #a94442;
+    }
+
+    .mental-state {
+      font-size: 24px;
+      font-weight: bold;
+      padding: 10px;
+      border-radius: 5px;
+      display: inline-block;
+    }
+
+    .state-95 {
+      background-color: #e91e63;
+      /* 深粉色 */
+      color: #ffffff;
+    }
+
+    .state-70 {
+      background-color: #ff9800;
+      /* 橙色 */
+      color: #ffffff;
+    }
+
+    .state-60 {
+      background-color: #ffc107;
+      /* 琥珀色 */
+      color: #000000;
+    }
+
+    .state-45 {
+      background-color: #8bc34a;
+      /* 浅绿色 */
+      color: #000000;
+    }
+
+    .state-30 {
+      background-color: #cddc39;
+      /* 青柠色 */
+      color: #000000;
+    }
+
+    .state-10 {
+      background-color: #ffeb3b;
+      /* 黄色 */
+      color: #000000;
+    }
+
+    .state-0 {
+      background-color: #f44336;
+      /* 红色 */
+      color: #ffffff;
+    }
+  </style>
 </head>
+
 <body>
-    <div class="container">
-        <h1>当前状态：<span id="currentStatus" class="status unknown">加载中...</span></h1>
-        <h2>持续时间：<span id="statusDuration">加载中...</span></h2>
-        <div class="history">
-            <h2>最近 10 次状态变化：</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>状态</th>
-                        <th>持续时间</th>
-                    </tr>
-                </thead>
-                <tbody id="historyTableBody">
-                    <!-- 动态插入 -->
-                </tbody>
-            </table>
-        </div>
-        <div id="summary" class="summary">
-            <h2>睡眠情况分析：</h2>
-            <p>在这段时间里，有 <span id="sleepPercentage">加载中...</span> 的时间我在睡觉，当前精神状态：<span id="mentalState" class="mental-state">加载中...</span></p>
-            <p>我最近清醒了 <span id="awakeTime">加载中...</span> 秒，睡了 <span id="sleepTime">加载中...</span> 秒</p>
-        </div>
+  <div class="container">
+    <h1>当前状态：<span id="currentStatus" class="status unknown">加载中...</span></h1>
+    <h2>持续时间：<span id="statusDuration">加载中...</span></h2>
+    <div class="history">
+      <h2>最近 10 次状态变化：</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>状态</th>
+            <th>持续时间</th>
+          </tr>
+        </thead>
+        <tbody id="historyTableBody">
+          <!-- 动态插入 -->
+        </tbody>
+      </table>
     </div>
+    <div id="summary" class="summary">
+      <h2>睡眠情况分析：</h2>
+      <p>在这段时间里，有 <span id="sleepPercentage">加载中...</span> 的时间我在睡觉，当前精神状态：<span id="mentalState"
+          class="mental-state">加载中...</span></p>
+      <p>我最近清醒了 <span id="awakeTime">加载中...</span> 秒，睡了 <span id="sleepTime">加载中...</span> 秒</p>
+    </div>
+  </div>
 
-    <script>
-        let lastStatus = null;
+  <script>
+    let lastStatus = null;
 
-        function fetchStatus() {
-            fetch('status.php')
-                .then(response => response.json())
-                .then(data => {
-                    const statusElement = document.getElementById('currentStatus');
-                    const historyTableBody = document.getElementById('historyTableBody');
-                    const sleepPercentageElement = document.getElementById('sleepPercentage');
-                    const mentalStateElement = document.getElementById('mentalState');
-                    const summaryElement = document.getElementById('summary');
-                    const durationElement = document.getElementById('statusDuration');
-                    const awakeTimeElement = document.getElementById('awakeTime');
-                    const sleepTimeElement = document.getElementById('sleepTime');
+    function fetchStatus() {
+      fetch('status.php')
+        .then(response => response.json())
+        .then(data => {
+          const statusElement = document.getElementById('currentStatus');
+          const historyTableBody = document.getElementById('historyTableBody');
+          const sleepPercentageElement = document.getElementById('sleepPercentage');
+          const mentalStateElement = document.getElementById('mentalState');
+          const summaryElement = document.getElementById('summary');
+          const durationElement = document.getElementById('statusDuration');
+          const awakeTimeElement = document.getElementById('awakeTime');
+          const sleepTimeElement = document.getElementById('sleepTime');
 
-                    if (data.status !== lastStatus) {
-                        lastStatus = data.status;
-                        statusElement.innerText = data.status;
+          statusElement.innerText = data.status;
+          statusElement.classList.remove('awake', 'asleep', 'unknown');
+          if (data.status === '醒着') {
+            statusElement.classList.add('awake');
+          } else if (data.status === '睡着') {
+            statusElement.classList.add('asleep');
+          } else {
+            statusElement.classList.add('unknown');
+          }
 
-                        statusElement.classList.remove('awake', 'asleep', 'unknown');
-                        if (data.status === '醒着') {
-                            statusElement.classList.add('awake');
-                        } else if (data.status === '睡着') {
-                            statusElement.classList.add('asleep');
-                        } else {
-                            statusElement.classList.add('unknown');
-                        }
+          historyTableBody.innerHTML = '';
+          data.history.reverse().forEach((entry, index, array) => {
+            const row = document.createElement('tr');
+            const statusCell = document.createElement('td');
+            const durationCell = document.createElement('td');
 
-                        historyTableBody.innerHTML = '';
-                        data.history.reverse().forEach((entry, index, array) => {
-                            const row = document.createElement('tr');
-                            const statusCell = document.createElement('td');
-                            const durationCell = document.createElement('td');
+            statusCell.innerText = entry.status;
 
-                            statusCell.innerText = entry.status;
+            let durationText;
+            if (index === 0) {
+              const duration = Math.floor(Date.now() / 1000) - entry.time;
+              const hours = Math.floor(duration / 3600);
+              const minutes = Math.floor((duration % 3600) / 60);
+              const seconds = duration % 60;
+              durationText = `${hours}小时${minutes}分钟${seconds}秒`;
+            } else {
+              const duration = array[index - 1].time - entry.time;
+              const hours = Math.floor(duration / 3600);
+              const minutes = Math.floor((duration % 3600) / 60);
+              const seconds = duration % 60;
+              durationText = `${hours}小时${minutes}分钟${seconds}秒`;
+            }
 
-                            let durationText;
-                            if (index === 0) {
-                                const duration = Math.floor(Date.now() / 1000) - entry.time;
-                                const hours = Math.floor(duration / 3600);
-                                const minutes = Math.floor((duration % 3600) / 60);
-                                const seconds = duration % 60;
-                                durationText = `${hours}小时${minutes}分钟${seconds}秒`;
-                            } else {
-                                const duration = array[index - 1].time - entry.time;
-                                const hours = Math.floor(duration / 3600);
-                                const minutes = Math.floor((duration % 3600) / 60);
-                                const seconds = duration % 60;
-                                durationText = `${hours}小时${minutes}分钟${seconds}秒`;
-                            }
+            durationCell.innerText = durationText;
 
-                            durationCell.innerText = durationText;
+            row.appendChild(statusCell);
+            row.appendChild(durationCell);
+            historyTableBody.appendChild(row);
+          });
 
-                            row.appendChild(statusCell);
-                            row.appendChild(durationCell);
-                            historyTableBody.appendChild(row);
-                        });
+          // 更新最近的一个状态的持续时间
+          const firstRow = historyTableBody.rows[0];
+          if (firstRow) {
+            const durationCell = firstRow.cells[1];
+            const recentStatusTime = data.history[data.history.length - 1].time;
+            const duration = Math.floor(Date.now() / 1000) - recentStatusTime;
+            const hours = Math.floor(duration / 3600);
+            const minutes = Math.floor((duration % 3600) / 60);
+            const seconds = duration % 60;
+            durationCell.innerText = `${hours}小时${minutes}分钟${seconds}秒`;
+          }
 
-                        if (data.sleep_time && data.total_time) {
-                            const sleepPercentage = (data.sleep_time / data.total_time * 100).toFixed(2);
-                            sleepPercentageElement.innerText = `${sleepPercentage}%`;
+          // 更新持续时间、醒着时间和睡觉时间
+          const statusDuration = Math.floor(Date.now() / 1000) - data.status_time;
+          const statusHours = Math.floor(statusDuration / 3600);
+          const statusMinutes = Math.floor((statusDuration % 3600) / 60);
+          const statusSeconds = statusDuration % 60;
 
-                            summaryElement.classList.remove('good', 'ok', 'bad');
-                            if (sleepPercentage >= 70) {
-                                summaryElement.classList.add('good');
-                            } else if (sleepPercentage >= 50) {
-                                summaryElement.classList.add('ok');
-                            } else {
-                                summaryElement.classList.add('bad');
-                            }
+          durationElement.innerText = `${statusHours}小时${statusMinutes}分钟${statusSeconds}秒`;
+          awakeTimeElement.innerText = data.awake_time;
+          sleepTimeElement.innerText = data.sleep_time;
 
-                            mentalStateElement.innerText = data.mental_state;
-                            mentalStateElement.classList.remove('state-95', 'state-70', 'state-60', 'state-45', 'state-30', 'state-10', 'state-0');
+          // 更新睡眠情况分析中的所有数据
+          const sleepPercentage = data.sleep_quality.toFixed(2);
+          sleepPercentageElement.innerText = `${sleepPercentage}%`;
 
-                            if (sleepPercentage >= 95) {
-                                mentalStateElement.classList.add('state-95');
-                            } else if (sleepPercentage >= 70) {
-                                mentalStateElement.classList.add('state-70');
-                            } else if (sleepPercentage >= 60) {
-                                mentalStateElement.classList.add('state-60');
-                            } else if (sleepPercentage >= 45) {
-                                mentalStateElement.classList.add('state-45');
-                            } else if (sleepPercentage >= 30) {
-                                mentalStateElement.classList.add('state-30');
-                            } else if (sleepPercentage >= 10) {
-                                mentalStateElement.classList.add('state-10');
-                            } else {
-                                mentalStateElement.classList.add('state-0');
-                            }
-                        }
-                    }
+          summaryElement.classList.remove('good', 'ok', 'bad');
+          if (sleepPercentage >= 70) {
+            summaryElement.classList.add('good');
+          } else if (sleepPercentage >= 50) {
+            summaryElement.classList.add('ok');
+          } else {
+            summaryElement.classList.add('bad');
+          }
 
-                    // 更新持续时间、醒着时间和睡觉时间
-                    const statusDuration = Math.floor(Date.now() / 1000) - data.status_time;
-                    const statusHours = Math.floor(statusDuration / 3600);
-                    const statusMinutes = Math.floor((statusDuration % 3600) / 60);
-                    const statusSeconds = statusDuration % 60;
+          mentalStateElement.innerText = data.mental_state;
+          mentalStateElement.classList.remove('state-95', 'state-70', 'state-60', 'state-45', 'state-30', 'state-10', 'state-0');
 
-                    durationElement.innerText = `${statusHours}小时${statusMinutes}分钟${statusSeconds}秒`;
-                    awakeTimeElement.innerText = data.awake_time;
-                    sleepTimeElement.innerText = data.sleep_time;
-                })
-                .catch(error => console.error('Error fetching status:', error));
-        }
+          if (sleepPercentage >= 95) {
+            mentalStateElement.classList.add('state-95');
+          } else if (sleepPercentage >= 70) {
+            mentalStateElement.classList.add('state-70');
+          } else if (sleepPercentage >= 60) {
+            mentalStateElement.classList.add('state-60');
+          } else if (sleepPercentage >= 45) {
+            mentalStateElement.classList.add('state-45');
+          } else if (sleepPercentage >= 30) {
+            mentalStateElement.classList.add('state-30');
+          } else if (sleepPercentage >= 10) {
+            mentalStateElement.classList.add('state-10');
+          } else {
+            mentalStateElement.classList.add('state-0');
+          }
+        })
+        .catch(error => console.error('Error fetching status:', error));
+    }
 
-        // 每秒钟请求一次最新的状态数据
-        setInterval(fetchStatus, 1000);
-        // 页面加载时立即请求一次数据
-        fetchStatus();
-    </script>
+    // 页面加载时立即请求一次数据
+    fetchStatus();
+    // 每秒钟请求一次最新的状态数据
+    setInterval(fetchStatus, 1000);
+
+
+
+  </script>
 </body>
+
 </html>
