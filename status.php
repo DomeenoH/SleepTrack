@@ -56,9 +56,9 @@ function calculateSleepQuality($history) {
         $currentEntry = $recentHistory[$i];
         $previousEntry = $recentHistory[$i - 1];
 
-        if ($currentEntry['status'] === '醒着' && $previousEntry['status'] === '睡着') {
+        if ($currentEntry['status'] === '睡着') {
             $sleepTime += $currentEntry['time'] - $previousEntry['time'];
-        } elseif ($currentEntry['status'] === '睡着' && $previousEntry['status'] === '醒着') {
+        } else {
             $awakeTime += $currentEntry['time'] - $previousEntry['time'];
         }
     }
@@ -67,7 +67,7 @@ function calculateSleepQuality($history) {
     $lastEntry = end($recentHistory);
     if ($lastEntry['status'] === '睡着') {
         $sleepTime += $currentTime - $lastEntry['time'];
-    } elseif ($lastEntry['status'] === '醒着') {
+    } else {
         $awakeTime += $currentTime - $lastEntry['time'];
     }
 
@@ -176,3 +176,4 @@ echo json_encode([
     'sleep_quality' => $sleepQuality['sleep_quality'],
     'mental_state' => $sleepQuality['mental_state']
 ], JSON_UNESCAPED_UNICODE);
+?>
