@@ -1,4 +1,5 @@
-![image](https://github.com/DomeenoH/SleepTrack/assets/29730075/4b96c5b1-9970-4721-baae-ee51ce43a803)
+![image](https://github.com/DomeenoH/SleepTrack/assets/29730075/c8f59fc5-9cee-49fb-8d8f-bd9cf60e5493)
+
 
 
 
@@ -15,8 +16,12 @@
 
 #### 文件结构
 - **`status.php`**：主要的后台处理文件，负责状态记录、睡眠质量计算和数据返回。
+- **`login.php`**：登录页。
+- **`logout.php`**：用于注销的后台处理文件。
+- **`manage.php`**：用于对记录文件进行简单的修改。
 - **`status_log.txt`**：用于存储状态变化日志的文件。
 - **`index.html`**：用于展示状态数据的前端页面。
+
 
 #### 使用方法
 
