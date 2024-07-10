@@ -1,7 +1,7 @@
 ### 项目简介
 
 这个项目是一个用于跟踪用户睡眠和清醒状态的系统，通过最近的状态数据计算睡眠质量和精神状态，并以JSON格式返回这些信息。系统主要由PHP后台程序和前端页面组成。
-感谢[阿毛同学](https://github.com/WinMEMZqwq)在[B站视频](https://www.bilibili.com/video/BV1fE421A7PE/)中提供的灵感。  
+感谢[毛毛同学](https://github.com/WinMEMZqwq)在[B站视频](https://www.bilibili.com/video/BV1fE421A7PE/)中提供的灵感。  
 
  ![image](https://github.com/DomeenoH/SleepTrack/assets/29730075/c8f59fc5-9cee-49fb-8d8f-bd9cf60e5493)
 #### 功能特色
