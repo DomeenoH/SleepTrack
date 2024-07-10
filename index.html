@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8">
-  <title>状态更新</title>
+  <title>多米诺睡了吗</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -148,12 +148,10 @@
   </style>
 </head>
 
-<body>
   <div class="container">
-    <h1>当前状态：<span id="currentStatus" class="status unknown">加载中...</span></h1>
+    <h1>多米诺当前的状态：<span id="currentStatus" class="status unknown">加载中...</span></h1>
     <h2>持续时间：<span id="statusDuration">加载中...</span></h2>
     <div class="history">
-      <h2>最近 10 次状态变化：</h2>
       <table>
         <thead>
           <tr>
@@ -167,15 +165,34 @@
       </table>
     </div>
     <div id="summary" class="summary">
-      <h2>睡眠情况分析：</h2>
-      <p>在这段时间里，有 <span id="sleepPercentage">加载中...</span> 的时间我在睡觉，当前精神状态：<span id="mentalState"
-          class="mental-state">加载中...</span></p>
-      <p>我最近清醒了 <span id="awakeTime">加载中...</span> 秒，睡了 <span id="sleepTime">加载中...</span> 秒</p>
+      <h2>阿多的睡眠情况：</h2>
+      <p>在这段时间里，阿多有   <span id="sleepPercentage" style="display: inline-block; transform: scale(1.2); font-weight: bold;">加载中...</span> 的时间在睡觉，当前精神状态可能是：<span id="mentalState"
+          class="mental-state" style="display: inline-block; transform: scale(1.2); font-weight: bold;">加载中...</span></p>
+      <p>阿多最近清醒了&nbsp;&nbsp; <span id="awakeTime" style="display: inline-block; transform: scale(1.2); font-weight: bold;">加载中...</span>&nbsp;&nbsp;，睡了 &nbsp;&nbsp;  <span id="sleepTime" style="display: inline-block; transform: scale(1.2); font-weight: bold;">加载中...</span></p>
     </div>
   </div>
 
   <script>
-    let lastStatus = null;
+    function formatDuration(seconds) {
+      const days = Math.floor(seconds / 86400);
+      seconds %= 86400;
+      const hours = Math.floor(seconds / 3600);
+      seconds %= 3600;
+      const minutes = Math.floor(seconds / 60);
+      seconds %= 60;
+
+      let result = '';
+      if (days > 0) {
+        result += `${days}天${hours}小时${minutes}分钟${seconds}秒`;
+      } else if (hours > 0) {
+        result += `${hours}小时${minutes}分钟${seconds}秒`;
+      } else if (minutes > 0) {
+        result += `${minutes}分钟${seconds}秒`;
+      } else {
+        result += `${seconds}秒`;
+      }
+      return result;
+    }
 
     function fetchStatus() {
       fetch('status.php')
@@ -211,16 +228,10 @@
             let durationText;
             if (index === 0) {
               const duration = Math.floor(Date.now() / 1000) - entry.time;
-              const hours = Math.floor(duration / 3600);
-              const minutes = Math.floor((duration % 3600) / 60);
-              const seconds = duration % 60;
-              durationText = `${hours}小时${minutes}分钟${seconds}秒`;
+              durationText = formatDuration(duration);
             } else {
               const duration = array[index - 1].time - entry.time;
-              const hours = Math.floor(duration / 3600);
-              const minutes = Math.floor((duration % 3600) / 60);
-              const seconds = duration % 60;
-              durationText = `${hours}小时${minutes}分钟${seconds}秒`;
+              durationText = formatDuration(duration);
             }
 
             durationCell.innerText = durationText;
@@ -231,13 +242,10 @@
           });
 
           const statusDuration = Math.floor(Date.now() / 1000) - data.status_time;
-          const statusHours = Math.floor(statusDuration / 3600);
-          const statusMinutes = Math.floor((statusDuration % 3600) / 60);
-          const statusSeconds = statusDuration % 60;
+          durationElement.innerText = formatDuration(statusDuration);
 
-          durationElement.innerText = `${statusHours}小时${statusMinutes}分钟${statusSeconds}秒`;
-          awakeTimeElement.innerText = data.awake_time;
-          sleepTimeElement.innerText = data.sleep_time;
+          awakeTimeElement.innerText = formatDuration(data.awake_time);
+          sleepTimeElement.innerText = formatDuration(data.sleep_time);
 
           const sleepPercentage = data.sleep_quality.toFixed(2);
           sleepPercentageElement.innerText = `${sleepPercentage}%`;
@@ -269,17 +277,12 @@
           } else {
             mentalStateElement.classList.add('state-0');
           }
-
-          lastStatus = data.history.length > 0 ? data.history[data.history.length - 1].time : null;
         })
         .catch(error => console.error('Error fetching status:', error));
     }
 
     fetchStatus();
     setInterval(fetchStatus, 1000);
-
-
-
   </script>
 </body>
 

@@ -35,18 +35,18 @@ function writeStatusLog($status) {
     // 添加新条目到数组的末尾
     $entries[] = rtrim($log_entry);
 
-    // 保留最后的 10 条记录
-    if (count($entries) > 10) {
-        $entries = array_slice($entries, -10);
+    // 保留最后的 20 条记录
+    if (count($entries) > 20) {
+        $entries = array_slice($entries, -20);
     }
 
-    // 将最新的 10 条记录写回文件
+    // 将最新的 20 条记录写回文件
     file_put_contents(STATUS_FILE, implode(PHP_EOL, $entries) . PHP_EOL);
 }
 
 // 函数用于计算睡眠质量和精神状态
 function calculateSleepQuality($history) {
-    $recentHistory = array_slice($history, -10);
+    $recentHistory = array_slice($history, -10); // 只计算最后 10 条内容
     $sleepTime = 0;
     $awakeTime = 0;
     $currentTime = time();
