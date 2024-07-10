@@ -56,7 +56,8 @@ function calculateSleepQuality($history) {
         $currentEntry = $recentHistory[$i];
         $previousEntry = $recentHistory[$i - 1];
 
-        if ($currentEntry['status'] === '睡着') {
+        // 非“睡着”的状态都算作清醒时间
+        if ($previousEntry['status'] === '睡着') {
             $sleepTime += $currentEntry['time'] - $previousEntry['time'];
         } else {
             $awakeTime += $currentEntry['time'] - $previousEntry['time'];
