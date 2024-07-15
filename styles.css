@@ -1,0 +1,140 @@
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f0f0f0;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.container {
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  width: 80%;
+  max-width: 800px;
+}
+
+h1 {
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+.status {
+  font-size: 20px;
+  padding: 10px;
+  border-radius: 5px;
+  display: inline-block;
+  min-width: 100px;
+}
+
+.awake {
+  background-color: #4caf50;
+  color: #ffffff;
+}
+
+.asleep {
+  background-color: #f44336;
+  color: #ffffff;
+}
+
+.unknown {
+  background-color: #9e9e9e;
+  color: #ffffff;
+}
+
+.history {
+  margin-top: 20px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+table, th, td {
+  border: 1px solid #ddd;
+}
+
+th, td {
+  padding: 8px;
+  text-align: center;
+}
+
+th {
+  background-color: #BEBEBE;
+}
+
+.summary {
+  margin-top: 20px;
+  padding: 10px;
+  border-radius: 5px;
+  text-align: left;
+}
+
+.summary.good {
+  background-color: #dff0d8;
+  color: #3c763d;
+}
+
+.summary.ok {
+  background-color: #fcf8e3;
+  color: #8a6d3b;
+}
+
+.summary.bad {
+  background-color: #f2dede;
+  color: #a94442;
+}
+
+.mental-state {
+  font-size: 24px;
+  font-weight: bold;
+  padding: 10px;
+  border-radius: 5px;
+  display: inline-block;
+}
+
+.progress-container {
+  position: relative;
+  width: 100%;
+  height: 30px;
+  background: linear-gradient(to right, rgba(255, 0, 0, 0.5) 0%, rgba(255, 255, 0, 0.5) 20%, rgba(0, 128, 0, 0.5) 40%, rgba(0, 128, 0, 0.5) 50%, rgba(255, 255, 0, 0.5) 60%, rgba(255, 0, 0, 0.5) 80%);
+  border-radius: 15px;
+  margin-top: 20px;
+  overflow: hidden;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+}
+
+.progress-bar {
+  position: absolute;
+  height: 100%;
+  background: linear-gradient(45deg， rgba(0, 0, 0, 0.5)， rgba(0, 0, 0, 0.8));
+  width: 10px;
+  transition: width 0.4s ease-in-out;
+}
+
+.progress-text {
+  margin-top: 3px;
+  font-size: 12px;
+  font-weight: bold;
+  color: #4caf50; /* 绿色字体 */
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2); /* 添加文字阴影 */
+  z-index: 1; /* 确保文字在进度条之上 */
+  position: relative; /* 确保 z-index 生效 */
+  padding: 5px 8px; /* 添加内边距 */
+  background: rgba(255, 255, 255, 0.3); /* 半透明背景 */
+  border-radius: 10px; /* 圆角边框 */
+  display: inline-block; /* 让背景和内边距围绕文字 */
+}
+
+/* 新增的类名 */
+.asleep-row {
+  background-color: #D3D3D3;
+}
