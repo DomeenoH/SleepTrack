@@ -8,7 +8,7 @@ header('Content-Type: application/json; charset=utf-8'); // 设置 HTTP 响应�
 
 // 函数用于验证请求中的密钥
 function isValidKey($key) {
-    return $key === AUTH_KEY;
+    return hash_equals(AUTH_KEY, $key);
 }
 
 // 函数用于读取状态记录
@@ -29,39 +29,74 @@ function writeStatusLog($status) {
     $current_time = time();
     $log_entry = $status . ',' . $current_time . PHP_EOL;
 
-    // 读取现有的日志内容
-    $entries = file(STATUS_FILE, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    $fp = fopen(STATUS_FILE, 'c+');
+    if (flock($fp, LOCK_EX)) {
+        $entries = file(STATUS_FILE, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+        $entries[] = rtrim($log_entry);
 
-    // 添加新条目到数组的末尾
-    $entries[] = rtrim($log_entry);
+        if (count($entries) > 20) {
+            $entries = array_slice($entries, -20);
+        }
 
-    // 保留最后的 20 条记录
-    if (count($entries) > 20) {
-        $entries = array_slice($entries, -20);
+        file_put_contents(STATUS_FILE, implode(PHP_EOL, $entries) . PHP_EOL);
+        flock($fp, LOCK_UN);
     }
-
-    // 将最新的 20 条记录写回文件
-    file_put_contents(STATUS_FILE, implode(PHP_EOL, $entries) . PHP_EOL);
+    fclose($fp);
 }
 
 // 函数用于计算睡眠质量和精神状态
 function calculateSleepQuality($history) {
-    $recentHistory = array_slice($history, -10); // 只计算最后 10 条内容
+    $currentTime = time();
+    $twentyFourHoursAgo = $currentTime - 86400; // 过去24小时的时间戳
+
+    // 筛选出最近24小时内的记录
+    $recentHistory = array_filter($history, function($entry) use ($twentyFourHoursAgo) {
+        return $entry['time'] >= $twentyFourHoursAgo;
+    });
+
+    // 如果没有记录，返回初始值
+    if (empty($recentHistory)) {
+        return [
+            'sleep_quality' => 0,
+            'mental_state' => '未知',
+            'sleep_time' => 0,
+            'awake_time' => 0,
+            'total_time' => 86400 // 固定为24小时
+        ];
+    }
+
     $sleepTime = 0;
     $awakeTime = 0;
-    $currentTime = time();
-    $firstEntryTime = $recentHistory[0]['time'];
 
-    for ($i = 1; $i < count($recentHistory); $i++) {
-        $currentEntry = $recentHistory[$i];
-        $previousEntry = $recentHistory[$i - 1];
+    // 确定24小时内最早的一个时间戳
+    $firstEntry = reset($recentHistory);
+
+    // 如果最早的记录是“睡着”，计算从24小时前到该记录时间的睡眠时间
+    if ($firstEntry['status'] === '睡着') {
+        $sleepTime += $firstEntry['time'] - $twentyFourHoursAgo;
+    } else {
+        $awakeTime += $firstEntry['time'] - $twentyFourHoursAgo;
+    }
+
+    $previousEntry = $firstEntry;
+
+    // 遍历计算每个状态的持续时间
+    foreach ($recentHistory as $i => $entry) {
+        if ($i === 0) continue; // 跳过第一个条目
+
+        // 确保时间戳顺序正确
+        if ($entry['time'] < $previousEntry['time']) {
+            continue; // 跳过异常数据
+        }
 
         // 非“睡着”的状态都算作清醒时间
         if ($previousEntry['status'] === '睡着') {
-            $sleepTime += $currentEntry['time'] - $previousEntry['time'];
+            $sleepTime += $entry['time'] - $previousEntry['time'];
         } else {
-            $awakeTime += $currentEntry['time'] - $previousEntry['time'];
+            $awakeTime += $entry['time'] - $previousEntry['time'];
         }
+
+        $previousEntry = $entry;
     }
 
     // 包含最新状态到当前时间的距离
@@ -72,7 +107,7 @@ function calculateSleepQuality($history) {
         $awakeTime += $currentTime - $lastEntry['time'];
     }
 
-    $totalTime = $currentTime - $firstEntryTime;
+    $totalTime = $currentTime - $twentyFourHoursAgo;
     $sleepQuality = ($totalTime > 0) ? ($sleepTime / $totalTime) * 100 : 0;
 
     // 判断精神状态
@@ -101,59 +136,42 @@ function calculateSleepQuality($history) {
     ];
 }
 
+function handleStatusUpdate($status) {
+    $history = readStatusLog();
+    $lastStatus = end($history)['status'];
+
+    if ($status === $lastStatus) {
+        return ['message' => '状态未变化，无需更新'];
+    } else {
+        writeStatusLog($status);
+        $_SESSION['status'] = $status;
+        $_SESSION['status_time'] = time();
+
+        return [
+            'message' => '状态更新成功',
+            'status' => $status,
+            'time' => date('Y-m-d H:i:s', $_SESSION['status_time'])
+        ];
+    }
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['status']) && isset($_POST['key'])) {
     if (isValidKey($_POST['key'])) {
-        $status = $_POST['status'];
-        $history = readStatusLog();
-        $lastStatus = end($history)['status'];
-
-        // 检查新状态是否与之前的状态相同
-        if ($status === $lastStatus) {
-            echo json_encode(['message' => '状态未变化，无需更新'], JSON_UNESCAPED_UNICODE);
-        } else {
-            // 写入新的状态和时间戳
-            writeStatusLog($status);
-
-            $_SESSION['status'] = $status;
-            $_SESSION['status_time'] = time();
-
-            echo json_encode([
-                'message' => '状态更新成功',
-                'status' => $status,
-                'time' => date('Y-m-d H:i:s', $_SESSION['status_time'])
-            ], JSON_UNESCAPED_UNICODE);
-        }
+        $response = handleStatusUpdate($_POST['status']);
     } else {
-        echo json_encode(['message' => '密钥无效'], JSON_UNESCAPED_UNICODE);
+        $response = ['message' => '密钥无效'];
     }
+    echo json_encode($response, JSON_UNESCAPED_UNICODE);
     exit;
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['status']) && isset($_GET['key'])) {
     if (isValidKey($_GET['key'])) {
-        $status = $_GET['status'];
-        $history = readStatusLog();
-        $lastStatus = end($history)['status'];
-
-        // 检查新状态是否与之前的状态相同
-        if ($status === $lastStatus) {
-            echo json_encode(['message' => '状态未变化，无需更新'], JSON_UNESCAPED_UNICODE);
-        } else {
-            // 写入新的状态和时间戳
-            writeStatusLog($status);
-
-            $_SESSION['status'] = $status;
-            $_SESSION['status_time'] = time();
-
-            echo json_encode([
-                'message' => '状态更新成功',
-                'status' => $status,
-                'time' => date('Y-m-d H:i:s', $_SESSION['status_time'])
-            ], JSON_UNESCAPED_UNICODE);
-        }
+        $response = handleStatusUpdate($_GET['status']);
     } else {
-        echo json_encode(['message' => '密钥无效'], JSON_UNESCAPED_UNICODE);
+        $response = ['message' => '密钥无效'];
     }
+    echo json_encode($response, JSON_UNESCAPED_UNICODE);
     exit;
 }
 
