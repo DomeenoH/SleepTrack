@@ -81,14 +81,27 @@ function fetchStatus() {
       const sleepPercentage = data.sleep_quality.toFixed(2);
       sleepPercentageElement.innerText = `${sleepPercentage}%`;
 
-      summaryElement.classList.remove('good', 'ok', 'bad');
-      if (sleepPercentage >= 70) {
-        summaryElement.classList.add('good');
-      } else if (sleepPercentage >= 50) {
-        summaryElement.classList.add('ok');
-      } else {
-        summaryElement.classList.add('bad');
-      }
+        summaryElement.classList.remove('good', 'ok', 'bad');
+        
+        if (sleepPercentage >= 95 || sleepPercentage < 10) {
+          summaryElement.classList.add('bad');
+        } else if (sleepPercentage >= 70 || sleepPercentage < 30) {
+          summaryElement.classList.add('bad');
+        } else if (sleepPercentage >= 60) {
+          summaryElement.classList.add('ok');
+        } else if (sleepPercentage >= 45) {
+          summaryElement.classList.add('good');
+        } else if (sleepPercentage >= 30) {
+          summaryElement.classList.add('ok');
+        } else if (sleepPercentage >= 10) {
+          summaryElement.classList.add('bad');
+        } else {
+          summaryElement.classList.add('bad');
+        }
+        
+            
+
+
 
       const mentalState = data.mental_state;
       const mentalStateStyles = {
