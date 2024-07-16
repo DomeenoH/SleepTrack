@@ -114,7 +114,7 @@ th {
 .progress-bar {
   position: absolute;
   height: 100%;
-  background: linear-gradient(45deg, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.8));
+  background: linear-gradient(45deg, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.1));
   width: 10px;
   transition: width 0.4s ease-in-out;
 }
@@ -123,12 +123,11 @@ th {
   margin-top: 3px;
   font-size: 12px;
   font-weight: bold;
-  color: #4caf50; /* 绿色字体 */
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2); /* 添加文字阴影 */
   z-index: 1; /* 确保文字在进度条之上 */
   position: relative; /* 确保 z-index 生效 */
   padding: 5px 8px; /* 添加内边距 */
-  background: rgba(255, 255, 255, 0.3); /* 半透明背景 */
+  background: rgba(0, 0, 0, 0.3); /* 半透明背景 */
   border-radius: 10px; /* 圆角边框 */
   display: inline-block; /* 让背景和内边距围绕文字 */
 }
@@ -151,7 +150,7 @@ th {
 .poop-summary {
   padding: 20px;
   display: inline-block; /* 根据内容的宽度自适应 */
-  font-size: 24px; /* 大字号 */
+  font-size: 12px; /* 大字号 */
   background-color: rgba(194, 155, 41, 0.8); /* 屎黄色，80%透明度 */
   border-radius: 10px; /* 圆角边框 */
   color: #fff; /* 白色文字 */
