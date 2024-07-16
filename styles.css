@@ -1,23 +1,22 @@
 body {
-  font-family: Arial, sans-serif;
-  background-color: #f0f0f0;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-  height: 100vh;
+    background-color: #f0f0f0;
+    margin: 0;
+    padding: 0;
+    display: flex; /* 使用Flexbox布局 */
+    flex-direction: column;
+    height: 100vh; /* 容器高度为视口高度 */
 }
 
+
 .container {
-  background-color: #ffffff;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  text-align: center;
-  width: 80%;
-  max-width: 800px;
+    background-color: #ffffff;
+    padding: 20px; /* 容器内边距 */
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    width: 80%;
+    max-width: 800px;
+    margin: auto; /* 水平自动边距 */
 }
 
 h1 {
@@ -115,7 +114,7 @@ th {
 .progress-bar {
   position: absolute;
   height: 100%;
-  background: linear-gradient(45deg， rgba(0, 0, 0, 0.5)， rgba(0, 0, 0, 0.8));
+  background: linear-gradient(45deg, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.8));
   width: 10px;
   transition: width 0.4s ease-in-out;
 }
@@ -137,4 +136,28 @@ th {
 /* 新增的类名 */
 .asleep-row {
   background-color: #D3D3D3;
+}
+
+/* 抖动动画效果 */
+@keyframes shake {
+  0% { transform: translateX(-2px); }
+  25% { transform: translateX(2px); }
+  50% { transform: translateX(-2px); }
+  75% { transform: translateX(2px); }
+  100% { transform: translateX(0); }
+}
+
+/* 屎黄色半透明背景样式 */
+.poop-summary {
+  padding: 20px;
+  display: inline-block; /* 根据内容的宽度自适应 */
+  font-size: 24px; /* 大字号 */
+  background-color: rgba(194, 155, 41, 0.8); /* 屎黄色，80%透明度 */
+  border-radius: 10px; /* 圆角边框 */
+  color: #fff; /* 白色文字 */
+  text-align: center; /* 中心对齐 */
+  animation: shake 0.5s ease-in-out infinite; /* 添加抖动动画 */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* 添加阴影效果 */
+  white-space: nowrap; /* 防止内容换行 */
+  margin: 20px auto; /* 居中对齐 */
 }
