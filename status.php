@@ -3,6 +3,7 @@ session_start();
 
 define('AUTH_KEY', 'YOURSECRETKEY'); // 定义鉴权密钥
 define('STATUS_FILE', 'status_log.txt'); // 定义状态日志文件
+define('POOP_FILE', 'poop_log.txt'); // 定义拉屎日志文件
 
 header('Content-Type: application/json; charset=utf-8'); // 设置 HTTP 响应头
 
@@ -44,10 +45,9 @@ function writeStatusLog($status) {
     fclose($fp);
 }
 
-// 函数用于计算睡眠质量和精神状态
 function calculateSleepQuality($history) {
-    $currentTime = time();
-    $twentyFourHoursAgo = $currentTime - 86400; // 过去24小时的时间戳
+    $currentTime = time(); // 获取当前时间戳
+    $twentyFourHoursAgo = $currentTime - 259200; // 过去24小时的时间戳
 
     // 筛选出最近24小时内的记录
     $recentHistory = array_filter($history, function($entry) use ($twentyFourHoursAgo) {
@@ -61,7 +61,7 @@ function calculateSleepQuality($history) {
             'mental_state' => '未知',
             'sleep_time' => 0,
             'awake_time' => 0,
-            'total_time' => 86400 // 固定为24小时
+            'total_time' => 259200 // 固定为48小时
         ];
     }
 
@@ -69,12 +69,15 @@ function calculateSleepQuality($history) {
     $awakeTime = 0;
 
     // 确定24小时内最早的一个时间戳
-    $firstEntry = reset($recentHistory);
-
-    // 如果最早的记录是“睡着”，计算从24小时前到该记录时间的睡眠时间
-    if ($firstEntry['status'] === '睡着') {
+    $recentHistory = array_values($recentHistory); // 确保数组键从0开始
+    $firstEntry = $recentHistory[0];
+    $previousTime = max($twentyFourHoursAgo, $firstEntry['time']);
+    // 计算从24小时前到第一个记录时间的状态时间
+    if ($firstEntry['status'] === '醒着') {
+        // 如果最早的记录是"醒着"，则24小时前到第一个记录之间为"睡着"
         $sleepTime += $firstEntry['time'] - $twentyFourHoursAgo;
     } else {
+        // 如果最早的记录是"睡着"，则24小时前到第一个记录之间为"醒着"
         $awakeTime += $firstEntry['time'] - $twentyFourHoursAgo;
     }
 
@@ -85,18 +88,15 @@ function calculateSleepQuality($history) {
         if ($i === 0) continue; // 跳过第一个条目
 
         // 确保时间戳顺序正确
-        if ($entry['time'] < $previousEntry['time']) {
-            continue; // 跳过异常数据
-        }
+        if ($entry['time'] >= $previousEntry['time']) {
+            if ($previousEntry['status'] === '睡着') {
+                $sleepTime += $entry['time'] - $previousEntry['time'];
+            } else {
+                $awakeTime += $entry['time'] - $previousEntry['time'];
+            }
 
-        // 非“睡着”的状态都算作清醒时间
-        if ($previousEntry['status'] === '睡着') {
-            $sleepTime += $entry['time'] - $previousEntry['time'];
-        } else {
-            $awakeTime += $entry['time'] - $previousEntry['time'];
+            $previousEntry = $entry;
         }
-
-        $previousEntry = $entry;
     }
 
     // 包含最新状态到当前时间的距离
@@ -136,6 +136,8 @@ function calculateSleepQuality($history) {
     ];
 }
 
+
+
 function handleStatusUpdate($status) {
     $history = readStatusLog();
     $lastStatus = end($history)['status'];
@@ -155,9 +157,59 @@ function handleStatusUpdate($status) {
     }
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['status']) && isset($_POST['key'])) {
+function readPoopLog() {
+    $poopHistory = [];
+    if (file_exists(POOP_FILE)) {
+        $lines = file(POOP_FILE, FILE_IGNORE_NEW_LINES);
+        foreach ($lines as $line) {
+            $poopHistory[] = (int)$line;
+        }
+    }
+    return $poopHistory;
+}
+
+function writePoopLog() {
+    $current_time = time();
+    $log_entry = $current_time . PHP_EOL;
+
+    $fp = fopen(POOP_FILE, 'c+');
+    if (flock($fp, LOCK_EX)) {
+        $entries = file(POOP_FILE, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+        $entries[] = rtrim($log_entry);
+
+        if (count($entries) > 100) { // 限制日志条目数
+            $entries = array_slice($entries, -100);
+        }
+
+        file_put_contents(POOP_FILE, implode(PHP_EOL, $entries) . PHP_EOL);
+        flock($fp, LOCK_UN);
+    }
+    fclose($fp);
+}
+
+function calculatePoopCount($poopHistory) {
+    $currentTime = time();
+    $twentyFourHoursAgo = $currentTime - 86400; // 过去24小时的时间戳
+
+    $recentPoops = array_filter($poopHistory, function($entry) use ($twentyFourHoursAgo) {
+        return $entry >= $twentyFourHoursAgo;
+    });
+
+    return count($recentPoops);
+}
+
+
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_POST['key'])) {
     if (isValidKey($_POST['key'])) {
-        $response = handleStatusUpdate($_POST['status']);
+        if ($_POST['action'] === 'updateStatus' && isset($_POST['status'])) {
+            $response = handleStatusUpdate($_POST['status']);
+        } elseif ($_POST['action'] === 'recordPoop') {
+            writePoopLog();
+            $response = ['message' => '拉屎记录成功'];
+        } else {
+            $response = ['message' => '无效的操作'];
+        }
     } else {
         $response = ['message' => '密钥无效'];
     }
@@ -165,25 +217,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['status']) && isset($_
     exit;
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['status']) && isset($_GET['key'])) {
+
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['action']) && isset($_GET['key'])) {
     if (isValidKey($_GET['key'])) {
-        $response = handleStatusUpdate($_GET['status']);
+        if ($_GET['action'] === 'updateStatus' && isset($_GET['status'])) {
+            $response = handleStatusUpdate($_GET['status']);
+        } elseif ($_GET['action'] === 'recordPoop') {
+            writePoopLog();
+            $response = ['message' => '拉屎记录成功'];
+        } else {
+            $response = ['message' => '无效的操作'];
+        }
     } else {
         $response = ['message' => '密钥无效'];
     }
     echo json_encode($response, JSON_UNESCAPED_UNICODE);
     exit;
 }
+
 
 $status = '未知';
 $status_time = time();
 $history = readStatusLog();
+$poopHistory = readPoopLog();
+
 if (!empty($history)) {
     $lastEntry = end($history);
     $status = $lastEntry['status'];
     $status_time = $lastEntry['time'];
 }
 $sleepQuality = calculateSleepQuality($history);
+$poopCount = calculatePoopCount($poopHistory);
 
 echo json_encode([
     'status' => $status,
@@ -193,6 +257,9 @@ echo json_encode([
     'awake_time' => $sleepQuality['awake_time'],
     'total_time' => $sleepQuality['total_time'],
     'sleep_quality' => $sleepQuality['sleep_quality'],
-    'mental_state' => $sleepQuality['mental_state']
+    'mental_state' => $sleepQuality['mental_state'],
+    'poop_count' => $poopCount // 返回拉屎次数
 ], JSON_UNESCAPED_UNICODE);
+
+
 ?>
