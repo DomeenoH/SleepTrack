@@ -1,9 +1,9 @@
 <?php
 session_start();
 
-define('AUTH_KEY', 'YOURSECRETKEY'); // 定义鉴权密钥
-define('STATUS_FILE', 'status_log.txt'); // 定义状态日志文件
-define('POOP_FILE', 'poop_log.txt'); // 定义拉屎日志文件
+define('AUTH_KEY'， 'YOURSECRETKEY'); // 定义鉴权密钥
+define('STATUS_FILE'， 'status_log.txt'); // 定义状态日志文件
+define('POOP_FILE'， 'poop_log.txt'); // 定义拉屎日志文件
 
 header('Content-Type: application/json; charset=utf-8'); // 设置 HTTP 响应头
 
@@ -35,8 +35,8 @@ function writeStatusLog($status) {
         $entries = file(STATUS_FILE, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
         $entries[] = rtrim($log_entry);
 
-        if (count($entries) > 20) {
-            $entries = array_slice($entries, -20);
+        if (count($entries) > 10) {
+            $entries = array_slice($entries, -10);
         }
 
         file_put_contents(STATUS_FILE, implode(PHP_EOL, $entries) . PHP_EOL);
@@ -177,8 +177,8 @@ function writePoopLog() {
         $entries = file(POOP_FILE, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
         $entries[] = rtrim($log_entry);
 
-        if (count($entries) > 100) { // 限制日志条目数
-            $entries = array_slice($entries, -100);
+        if (count($entries) > 10) { // 限制日志条目数
+            $entries = array_slice($entries, -10);
         }
 
         file_put_contents(POOP_FILE, implode(PHP_EOL, $entries) . PHP_EOL);
